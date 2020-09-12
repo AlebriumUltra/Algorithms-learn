@@ -1,10 +1,6 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
 #include "Algorithms.h"
 
-#define ROWS 10 // Константы для матрицы
-#define COLS 5
-
-
 
 void SearchMaxMin(int* Numbers, int Size) {
 	int Max, Min;
@@ -30,10 +26,10 @@ void RandomArray(int* Numbers, int Size) {
 	}
 }
 
-void RandomMatrix(int Matrix[ROWS][COLS]) {
+void RandomMatrix(int** Matrix, int Rows, int Cols) {
 	printf(" Matrix: \n\n");
-	for (int i = 0; i < ROWS; i++) {
-		for (int j = 0; j < COLS; j++) {
+	for (int i = 0; i < Rows; i++) {
+		for (int j = 0; j < Cols; j++) {
 			Matrix[i][j] = rand() % 201 - 100; // Заполнение массива случайными цифрами в диапазоне от -100 до 100
 			printf(" %d\t", Matrix[i][j]);
 		}
@@ -56,17 +52,29 @@ int main() {
 	printf("\n");
 
 	// Задание 4
-	int Matrix[ROWS][COLS];
+	int Rows, Cols;
+	printf("Enter amount rows: ");
+	scanf("%d", &Rows);
+	printf("Enter amount cols: ");
+	scanf("%d", &Cols);
+	int** Matrix = (int**)malloc(sizeof(int) * Rows);
+	for (int i = 0; i < Rows; i++) {
+		Matrix[i] = (int*)malloc(sizeof(int) * Cols);
+	}
 	int SumCols = 0;
 	printf("\n\n");
-	RandomMatrix(Matrix); // Инициализвация массива случайными числами
+	RandomMatrix(Matrix, Rows, Cols); // Инициализвация массива случайными числами
 	printf("\n\n");
-	for (int j = 0; j < COLS; j++) { // Т.к считается сумма столбца, меняем циклы местами
-		for (int i = 0; i < ROWS; i++) {
+	for (int j = 0; j < Cols; j++) { // Т.к считается сумма столбца, меняем циклы местами
+		for (int i = 0; i < Rows; i++) {
 			SumCols += Matrix[i][j];
 		}
 		printf("Col (%d): %d\n", j + 1, SumCols);
 		SumCols = 0; // Обнуляем для считывания следующих столбцов
 	}
+	for (int i = 0; i < Rows; i++) {
+		free(Matrix[i]);
+	}
+	free(Matrix);
 	_getch();
 }
