@@ -3,4 +3,5 @@
 #include <conio.h>
 #include <malloc.h>
 #include <time.h>
-#include <random>
+#include <stdlib.h>
+#include <Windows.h>
