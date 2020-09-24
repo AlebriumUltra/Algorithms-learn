@@ -81,13 +81,19 @@ void PrintArray(int* items, int count) {
 	}
 }
 
+int compare(const void* a, const void* b)
+{
+	return (*(int*)a - *(int*)b);
+}
+
 int main() {
 	srand(time(NULL));
 	FILE* Output;
+	clock_t start, end;
 	char FileName[50];
 	printf("Enter FileName: ");
 	scanf("%s", FileName);
-	int Sizes[] = { 10000,20000,30000,40000,50000,60000,70000,80000,90000,100000 };
+	int Sizes[] = { 10000,20000,30000,40000,50000,60000,70000,80000,90000,100000,200000 };
 	double Times[4];
 	int* Array = NULL;
 	int LengthSizes = sizeof(Sizes) / sizeof(int);
@@ -105,7 +111,7 @@ int main() {
 		Times[3] = shellsort(Array, Sizes[i]);
 		fprintf(Output, "%lf\t\t%lf\t%lf\t%lf\n", Times[0], Times[1], Times[2], Times[3]);
 	}
-	fprintf(Output, "\nQuicksort:\n\tRandomized\tSorted\tReversed\tSaw\n");
+	fprintf(Output, "\nHandQuicksort:\n\tRandomized\tSorted\tReversed\tSaw\n");
 	for (int i = 0; i < LengthSizes; i++) {
 		Array = (int*)realloc(Array, Sizes[i] * sizeof(int));
 		fprintf(Output, "%d\t", Sizes[i]);
@@ -116,6 +122,31 @@ int main() {
 		Times[2] = qs(Array, 0, Sizes[i] - 1);
 		Saw(Array, Sizes[i]);
 		Times[3] = qs(Array, 0, Sizes[i] - 1);
+		fprintf(Output, "%lf\t\t%lf\t%lf\t%lf\n", Times[0], Times[1], Times[2], Times[3]);
+	}
+	fprintf(Output, "\nLibraryQuicksort:\n\tRandomized\tSorted\tReversed\tSaw\n");
+	for (int i = 0; i < LengthSizes; i++) {
+		Array = (int*)realloc(Array, Sizes[i] * sizeof(int));
+		fprintf(Output, "%d\t", Sizes[i]);
+		Randomized(Array, Sizes[i]);
+		start = clock();
+		qsort(Array, Sizes[i], sizeof(int), compare);
+		end = clock();
+		Times[0] = (double)(end - start) / CLK_TCK;
+		start = clock();
+		qsort(Array, Sizes[i], sizeof(int), compare);
+		end = clock();
+		Times[1] = (double)(end - start) / CLK_TCK;
+		Reversed(Array, Sizes[i]);
+		start = clock();
+		qsort(Array, Sizes[i], sizeof(int), compare);
+		end = clock();
+		Times[2] = (double)(end - start) / CLK_TCK;
+		Saw(Array, Sizes[i]);
+		start = clock();
+		qsort(Array, Sizes[i], sizeof(int), compare);
+		end = clock();
+		Times[3] = (double)(end - start) / CLK_TCK;
 		fprintf(Output, "%lf\t\t%lf\t%lf\t%lf\n", Times[0], Times[1], Times[2], Times[3]);
 	}
 	free(Array);
