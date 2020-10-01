@@ -81,6 +81,11 @@ void PrintArray(int* items, int count) {
 	}
 }
 
+void CopiedArray(int* Array1, int* Array2, int count) {
+	for (int i = 0; i < count; i++) {
+		Array1[i] = Array2[i];
+	}
+}
 int compare(const void* a, const void* b)
 {
 	return (*(int*)a - *(int*)b);
@@ -89,66 +94,71 @@ int compare(const void* a, const void* b)
 int main() {
 	srand(time(NULL));
 	FILE* Output;
-	clock_t start, end;
 	char FileName[50];
 	printf("Enter FileName: ");
 	scanf("%s", FileName);
-	int Sizes[] = { 10000,20000,30000,40000,50000,60000,70000,80000,90000,100000,200000 };
-	double Times[4];
-	int* Array = NULL;
+	int Sizes[] = { 50000, 100000, 150000, 200000, 250000 };
+	double start, end;
+	double TimesShell[4];
+	double TimesQS[4];
+	double TimesLQS[4];
 	int LengthSizes = sizeof(Sizes) / sizeof(int);
+	int* RandomArray = NULL;
+	int* TempArray = NULL;
 	Output = fopen(FileName, "w");
-	fprintf(Output, "Shellsort:\n\tRandomized\tSorted\tReversed\tSaw\n");
 	for (int i = 0; i < LengthSizes; i++) {
-		Array = (int*)realloc(Array, Sizes[i] * sizeof(int));
-		fprintf(Output, "%d\t", Sizes[i]);
-		Randomized(Array, Sizes[i]);
-		Times[0] = shellsort(Array, Sizes[i]);
-		Times[1] = shellsort(Array, Sizes[i]);
-		Reversed(Array, Sizes[i]);
-		Times[2] = shellsort(Array, Sizes[i]);
-		Saw(Array, Sizes[i]);
-		Times[3] = shellsort(Array, Sizes[i]);
-		fprintf(Output, "%lf\t\t%lf\t%lf\t%lf\n", Times[0], Times[1], Times[2], Times[3]);
+		RandomArray = (int*)realloc(RandomArray, sizeof(int) * Sizes[i]);
+		TempArray = (int*)realloc(TempArray, sizeof(int) * Sizes[i]);
+		Randomized(RandomArray, Sizes[i]);
+		CopiedArray(TempArray, RandomArray, Sizes[i]);
+
+		TimesShell[0] = shellsort(TempArray, Sizes[i]);
+		Sorted(TempArray, Sizes[i]);
+		TimesShell[1] = shellsort(TempArray, Sizes[i]);
+		Reversed(TempArray, Sizes[i]);
+		TimesShell[2] = shellsort(TempArray, Sizes[i]);
+		Saw(TempArray, Sizes[i]);
+		TimesShell[3] = shellsort(TempArray, Sizes[i]);
+
+
+		CopiedArray(TempArray, RandomArray, Sizes[i]);
+		TimesQS[0] = qs(TempArray, 0, Sizes[i] - 1);
+		Sorted(TempArray, Sizes[i]);
+		TimesQS[1] = qs(TempArray, 0, Sizes[i] - 1);
+		Reversed(TempArray, Sizes[i]);
+		TimesQS[2] = qs(TempArray, 0, Sizes[i] - 1);
+		Saw(TempArray, Sizes[i]);
+		TimesQS[3] = qs(TempArray, 0, Sizes[i] - 1);
+
+
+		CopiedArray(TempArray, RandomArray, Sizes[i]);
+		start = clock();
+		qsort(TempArray, Sizes[i], sizeof(int), compare);
+		end = clock();
+		TimesLQS[0] = (end - start) / CLK_TCK;
+		Sorted(TempArray, Sizes[i]);
+		start = clock();
+		qsort(TempArray, Sizes[i], sizeof(int), compare);
+		end = clock();
+		TimesLQS[1] = (end - start) / CLK_TCK;
+		Reversed(TempArray, Sizes[i]);
+		start = clock();
+		qsort(TempArray, Sizes[i], sizeof(int), compare);
+		end = clock();
+		TimesLQS[2] = (end - start) / CLK_TCK;
+		Saw(TempArray, Sizes[i]);
+		start = clock();
+		qsort(TempArray, Sizes[i], sizeof(int), compare);
+		end = clock();
+		TimesLQS[3] = (end - start) / CLK_TCK;
+
+		fprintf(Output, "SizeArray:\t%d\n\n", Sizes[i]);
+		fprintf(Output, "ShellSort:\nRandomTime:\t%lf\nSortedTime:\t%lf\nReversedTime:\t%lf\nSawTime:\t%lf\n\n", TimesShell[0], TimesShell[1], TimesShell[2], TimesShell[3]);
+		fprintf(Output, "QS:\nRandomTime:\t%lf\nSortedTime:\t%lf\nReversedTime:\t%lf\nSawTime:\t%lf\n\n", TimesQS[0], TimesQS[1], TimesQS[2], TimesQS[3]);
+		fprintf(Output, "LQS:\nRandomTime:\t%lf\nSortedTime:\t%lf\nReversedTime:\t%lf\nSawTime:\t%lf\n========================|\n\n", TimesLQS[0], TimesLQS[1], TimesLQS[2], TimesLQS[3]);
 	}
-	fprintf(Output, "\nHandQuicksort:\n\tRandomized\tSorted\tReversed\tSaw\n");
-	for (int i = 0; i < LengthSizes; i++) {
-		Array = (int*)realloc(Array, Sizes[i] * sizeof(int));
-		fprintf(Output, "%d\t", Sizes[i]);
-		Randomized(Array, Sizes[i]);
-		Times[0] = qs(Array, 0, Sizes[i] - 1);
-		Times[1] = qs(Array, 0, Sizes[i] - 1);
-		Reversed(Array, Sizes[i]);
-		Times[2] = qs(Array, 0, Sizes[i] - 1);
-		Saw(Array, Sizes[i]);
-		Times[3] = qs(Array, 0, Sizes[i] - 1);
-		fprintf(Output, "%lf\t\t%lf\t%lf\t%lf\n", Times[0], Times[1], Times[2], Times[3]);
-	}
-	fprintf(Output, "\nLibraryQuicksort:\n\tRandomized\tSorted\tReversed\tSaw\n");
-	for (int i = 0; i < LengthSizes; i++) {
-		Array = (int*)realloc(Array, Sizes[i] * sizeof(int));
-		fprintf(Output, "%d\t", Sizes[i]);
-		Randomized(Array, Sizes[i]);
-		start = clock();
-		qsort(Array, Sizes[i], sizeof(int), compare);
-		end = clock();
-		Times[0] = (double)(end - start) / CLK_TCK;
-		start = clock();
-		qsort(Array, Sizes[i], sizeof(int), compare);
-		end = clock();
-		Times[1] = (double)(end - start) / CLK_TCK;
-		Reversed(Array, Sizes[i]);
-		start = clock();
-		qsort(Array, Sizes[i], sizeof(int), compare);
-		end = clock();
-		Times[2] = (double)(end - start) / CLK_TCK;
-		Saw(Array, Sizes[i]);
-		start = clock();
-		qsort(Array, Sizes[i], sizeof(int), compare);
-		end = clock();
-		Times[3] = (double)(end - start) / CLK_TCK;
-		fprintf(Output, "%lf\t\t%lf\t%lf\t%lf\n", Times[0], Times[1], Times[2], Times[3]);
-	}
-	free(Array);
+	fclose(Output);
+	free(RandomArray);
+	free(TempArray);
 	system("PAUSE");
 }

@@ -1,0 +1,105 @@
+SizeArray:	50000
+
+ShellSort:
+RandomTime:	0.180000
+SortedTime:	0.001000
+ReversedTime:	0.356000
+SawTime:	0.173000
+
+QS:
+RandomTime:	0.015000
+SortedTime:	0.015000
+ReversedTime:	0.016000
+SawTime:	0.039000
+
+LQS:
+RandomTime:	0.020000
+SortedTime:	0.012000
+ReversedTime:	0.013000
+SawTime:	0.045000
+========================|
+
+SizeArray:	100000
+
+ShellSort:
+RandomTime:	0.709000
+SortedTime:	0.002000
+ReversedTime:	1.423000
+SawTime:	0.702000
+
+QS:
+RandomTime:	0.032000
+SortedTime:	0.033000
+ReversedTime:	0.032000
+SawTime:	0.122000
+
+LQS:
+RandomTime:	0.041000
+SortedTime:	0.027000
+ReversedTime:	0.026000
+SawTime:	0.101000
+========================|
+
+SizeArray:	150000
+
+ShellSort:
+RandomTime:	1.602000
+SortedTime:	0.003000
+ReversedTime:	3.252000
+SawTime:	1.650000
+
+QS:
+RandomTime:	0.048000
+SortedTime:	0.049000
+ReversedTime:	0.048000
+SawTime:	0.254000
+
+LQS:
+RandomTime:	0.062000
+SortedTime:	0.042000
+ReversedTime:	0.043000
+SawTime:	0.158000
+========================|
+
+SizeArray:	200000
+
+ShellSort:
+RandomTime:	2.926000
+SortedTime:	0.003000
+ReversedTime:	5.957000
+SawTime:	2.892000
+
+QS:
+RandomTime:	0.062000
+SortedTime:	0.063000
+ReversedTime:	0.063000
+SawTime:	0.427000
+
+LQS:
+RandomTime:	0.082000
+SortedTime:	0.055000
+ReversedTime:	0.056000
+SawTime:	0.218000
+========================|
+
+SizeArray:	250000
+
+ShellSort:
+RandomTime:	4.565000
+SortedTime:	0.005000
+ReversedTime:	9.331000
+SawTime:	4.677000
+
+QS:
+RandomTime:	0.079000
+SortedTime:	0.080000
+ReversedTime:	0.081000
+SawTime:	0.657000
+
+LQS:
+RandomTime:	0.105000
+SortedTime:	0.072000
+ReversedTime:	0.075000
+SawTime:	0.293000
+========================|
+
