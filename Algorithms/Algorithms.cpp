@@ -46,7 +46,6 @@ void PrintMatrix(int** Matrix, int Order) {
 
 void VertexIdentification(int** Matrix, int Order) {
 	int Vertex, Vertex2;
-	bool is_edge;
 	printf("Введите вершину 1: ");
 	scanf("%d", &Vertex);
 	printf("Введите вершину 2: ");
@@ -62,10 +61,36 @@ void VertexIdentification(int** Matrix, int Order) {
 		Matrix[Vertex][i] = Matrix[Vertex2][i] || Matrix[Vertex][i];
 		Matrix[i][Vertex] = Matrix[i][Vertex2] || Matrix[i][Vertex];
 	}
-	int** EditMatrix = (int**)malloc(sizeof(int) * Order - 1);
+	int** EditMatrix = (int**)malloc(sizeof(int) * (Order - 1));
 	for (int i = 0; i < Order - 1; i++) {
-		EditMatrix[i] = (int*)malloc(sizeof(int) * Order - 1);
+		EditMatrix[i] = (int*)malloc(sizeof(int) * (Order - 1));
 	}
+	if (Vertex2 == (Order - 1)) {
+		for (int i = 0; i < Order - 1; i++) {
+			for (int j = 0; j < Order - 1; j++) {
+				EditMatrix[i][j] = Matrix[i][j];
+			}
+		}
+	}
+	else {
+		for (int i = 0; i < Order - 1; i++) {
+			for (int j = 0; j < Order - 1; j++) {
+				if (j >= Vertex2 && i < Vertex2) {
+					EditMatrix[i][j] = Matrix[i][j + 1];
+				}
+				else if (j >= Vertex2 && i >= Vertex2) {
+					EditMatrix[i][j] = Matrix[i+1][j+1];
+				}
+				else if (j < Vertex2 && i >= Vertex2) {
+					EditMatrix[i][j] = Matrix[i + 1][j];
+				}
+				else {
+					EditMatrix[i][j] = Matrix[i][j];
+				}
+			}
+		}
+	}
+	PrintMatrix(EditMatrix, Order - 1);
 }
 
 
