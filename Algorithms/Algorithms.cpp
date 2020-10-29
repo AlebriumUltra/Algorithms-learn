@@ -149,7 +149,7 @@ void matrix_edgeName(Graph* GraphG, Graph* NumEdgeGraph) {
 }
 
 
-void vertexIndentification(Graph* GraphG) {
+void VertexIndentification(Graph* GraphG) {
 	int u, v;
 	int MatrixOrder = GraphG->MatrixOrder;
 	printf("Введите вершину 1: ");
@@ -177,7 +177,7 @@ void vertexIndentification(Graph* GraphG) {
 }
 
 
-void edgeContract(Graph* GraphG) {
+void EdgeContract(Graph* GraphG) {
 	int MatrixOrder = GraphG->MatrixOrder;
 	Graph* NumEdgeGraph = graph_create(MatrixOrder);
 	int u, v;
@@ -215,7 +215,7 @@ void edgeContract(Graph* GraphG) {
 }
 
 
-void vertexSplit(Graph* GraphG) {
+void VertexSplit(Graph* GraphG) {
 	int MatrixOrder = GraphG->MatrixOrder;
 	int u;
 	printf("Введите вершину для расщепления: ");
@@ -229,95 +229,197 @@ void vertexSplit(Graph* GraphG) {
 		}
 	}
 	for (int i = 0; i < MatrixOrder; i++) {
-		IndentGraph->Matrix[MatrixOrder][i] = GraphG->Matrix[u][i];
-		IndentGraph->Matrix[i][MatrixOrder] = GraphG->Matrix[i][u];
+		if (GraphG->Matrix[u][i] == 1) {
+			if (rand() % 101 <= 40) {
+				IndentGraph->Matrix[MatrixOrder][i] = 1;
+				IndentGraph->Matrix[i][MatrixOrder] = 1;
+				IndentGraph->Matrix[u][i] = 0;
+				IndentGraph->Matrix[i][u] = 0;
+			}
+			else {
+				IndentGraph->Matrix[MatrixOrder][i] = 0;
+				IndentGraph->Matrix[i][MatrixOrder] = 0;
+			}
+		}
+		else {
+			IndentGraph->Matrix[MatrixOrder][i] = 0;
+			IndentGraph->Matrix[i][MatrixOrder] = 0;
+		}
 	}
 	IndentGraph->Matrix[MatrixOrder][MatrixOrder] = 0;
 	matrix_print(IndentGraph);
 	free(IndentGraph);
 }
 
-void graphUnion(Graph* GraphG1, Graph* GraphG2) {
+void GraphUnion(Graph* GraphG1, Graph* GraphG2) {
 	printf("Объединение графов");
-	int MatrixOrderG1 = GraphG1->MatrixOrder;
-	int MatrixOrderG2 = GraphG2->MatrixOrder;
-	Graph* GraphG3Union = graph_create(MatrixOrderG1);
-	for (int i = 0; i < MatrixOrderG1; i++) {
-		for (int j = 0; j < MatrixOrderG1; j++) {
-			GraphG3Union->Matrix[i][j] = GraphG1->Matrix[i][j] || GraphG2->Matrix[i][j];
- 		}
+	int MatrixOrderMin = GraphG1->MatrixOrder;
+	int MatrixOrderMax = GraphG2->MatrixOrder;
+	bool is_equal = false;
+	bool is_moreG1 = false;
+	if (MatrixOrderMin == MatrixOrderMax) {
+		is_equal = true;
+	}
+	else if (GraphG1->MatrixOrder > GraphG2->MatrixOrder) {
+		MatrixOrderMin = GraphG2->MatrixOrder;
+		MatrixOrderMax = GraphG1->MatrixOrder;
+		is_moreG1 = true;
+	}
+	Graph* GraphG3Union = graph_create(MatrixOrderMax);
+	if (is_equal) {
+		for (int i = 0; i < GraphG1->MatrixOrder; i++) {
+			for (int j = 0; j < GraphG1->MatrixOrder; j++) {
+				GraphG3Union->Matrix[i][j] = GraphG1->Matrix[i][j] || GraphG2->Matrix[i][j];
+			}
+		}
+	}
+	else {
+		for (int i = 0; i < MatrixOrderMin; i++) {
+			for (int j = 0; j < MatrixOrderMin; j++) {
+				GraphG3Union->Matrix[i][j] = GraphG1->Matrix[i][j] || GraphG2->Matrix[i][j];
+			}
+		}
+		if (is_moreG1) {
+			for (int i = 0; i < MatrixOrderMax; i++) {
+				for (int j = MatrixOrderMin; j < MatrixOrderMax; j++) {
+					GraphG3Union->Matrix[i][j] = GraphG1->Matrix[i][j];
+				}
+			}
+			for (int i = MatrixOrderMin; i < MatrixOrderMax; i++) {
+				for (int j = 0; j < MatrixOrderMax; j++) {
+					GraphG3Union->Matrix[i][j] = GraphG1->Matrix[i][j];
+				}
+			}
+		}
+		else {
+			for (int i = 0; i < MatrixOrderMax; i++) {
+				for (int j = MatrixOrderMin; j < MatrixOrderMax; j++) {
+					GraphG3Union->Matrix[i][j] = GraphG2->Matrix[i][j];
+				}
+			}
+			for (int i = MatrixOrderMin; i < MatrixOrderMax; i++) {
+				for (int j = 0; j < MatrixOrderMax; j++) {
+					GraphG3Union->Matrix[i][j] = GraphG2->Matrix[i][j];
+				}
+			}
+		}
 	}
 	matrix_print(GraphG3Union);
+	graph_free(GraphG3Union);
 }
 
-void graphCross(Graph* GraphG1, Graph* GraphG2) {
+void GraphCross(Graph* GraphG1, Graph* GraphG2) {
 	printf("Пересечение графов");
-	int MatrixOrderG1 = GraphG1->MatrixOrder;
-	int MatrixOrderG2 = GraphG2->MatrixOrder;
-	Graph* GraphG3Cross = graph_create(MatrixOrderG1);
-	for (int i = 0; i < MatrixOrderG1; i++) {
-		for (int j = 0; j < MatrixOrderG1; j++) {
-			GraphG3Cross->Matrix[i][j] = GraphG1->Matrix[i][j] && GraphG2->Matrix[i][j];
+	int MatrixOrderMin = GraphG1->MatrixOrder;
+	int MatrixOrderMax = GraphG2->MatrixOrder;
+
+	if (GraphG1->MatrixOrder > GraphG2->MatrixOrder) {
+		MatrixOrderMin = GraphG2->MatrixOrder;
+		MatrixOrderMax = GraphG1->MatrixOrder;
+	}
+
+	Graph* GraphG3Cross = graph_create(MatrixOrderMin);
+	{
+		for (int i = 0; i < MatrixOrderMin; i++) {
+			for (int j = 0; j < MatrixOrderMin; j++) {
+				GraphG3Cross->Matrix[i][j] = GraphG1->Matrix[i][j] && GraphG2->Matrix[i][j];
+			}
 		}
 	}
 	matrix_print(GraphG3Cross);
+	graph_free(GraphG3Cross);
 }
 
-void graphSum(Graph* GraphG1, Graph* GraphG2) {
-	printf("Кольцевая сумма графов");
-	int MatrixOrderG1 = GraphG1->MatrixOrder;
-	int MatrixOrderG2 = GraphG2->MatrixOrder;
-	int MatrixOrderG3 = GraphG1->MatrixOrder;
-	int* RightRaw = (int*)malloc(sizeof(int) * MatrixOrderG1);
-	bool is_same;
-	for (int i = 0, int k = 0; i < MatrixOrderG1; i++) {
-		is_same = true;
-		for (int j = 0; j < MatrixOrderG1; j++) {
-			if (GraphG1->Matrix[i][j] != GraphG2->Matrix[i][j]) {
-				is_same = false;
+void GraphSum(Graph* GraphG1, Graph* GraphG2) {
+	printf("Кольцевая сумма");
+	int MatrixOrderMin = GraphG1->MatrixOrder;
+	int MatrixOrderMax = GraphG2->MatrixOrder;
+	bool is_equal = false;
+	bool is_moreG1 = false;
+	if (MatrixOrderMin == MatrixOrderMax) {
+		is_equal = true;
+	}
+	else if (GraphG1->MatrixOrder > GraphG2->MatrixOrder) {
+		MatrixOrderMin = GraphG2->MatrixOrder;
+		MatrixOrderMax = GraphG1->MatrixOrder;
+		is_moreG1 = true;
+	}
+	Graph* GraphG3Sum = graph_create(MatrixOrderMax);
+	if (is_equal) {
+		for (int i = 0; i < GraphG1->MatrixOrder; i++) {
+			for (int j = 0; j < GraphG1->MatrixOrder; j++) {
+				if (GraphG1->Matrix[i][j] == 1 && GraphG2->Matrix[i][j] == 0 || GraphG1->Matrix[i][j] == 0 && GraphG2->Matrix[i][j] == 1)
+					GraphG3Sum->Matrix[i][j] = 1;
+				else
+					GraphG3Sum->Matrix[i][j] = 0;
 			}
 		}
-		if (is_same) {
-			MatrixOrderG3--;
-			RightRaw[k] = i;
-			k++;
+	}
+	else {
+		for (int i = 0; i < MatrixOrderMin; i++) {
+			for (int j = 0; j < MatrixOrderMin; j++) {
+				if (GraphG1->Matrix[i][j] == 1 && GraphG2->Matrix[i][j] == 0 || GraphG1->Matrix[i][j] == 0 && GraphG2->Matrix[i][j] == 1)
+					GraphG3Sum->Matrix[i][j] = 1;
+				else
+					GraphG3Sum->Matrix[i][j] = 0;
+			}
+		}
+		if (is_moreG1) {
+			for (int i = 0; i < MatrixOrderMax; i++) {
+				for (int j = MatrixOrderMin; j < MatrixOrderMax; j++) {
+						GraphG3Sum->Matrix[i][j] = GraphG1->Matrix[i][j];
+				}
+			}
+			for (int i = MatrixOrderMin; i < MatrixOrderMax; i++) {
+				for (int j = 0; j < MatrixOrderMax; j++) {
+						GraphG3Sum->Matrix[i][j] = GraphG1->Matrix[i][j];
+				}
+			}
+		}
+		else {
+			for (int i = 0; i < MatrixOrderMax; i++) {
+				for (int j = MatrixOrderMin; j < MatrixOrderMax; j++) {
+					GraphG3Sum->Matrix[i][j] = GraphG2->Matrix[i][j];
+				}
+			}
+			for (int i = MatrixOrderMin; i < MatrixOrderMax; i++) {
+				for (int j = 0; j < MatrixOrderMax; j++) {
+					GraphG3Sum->Matrix[i][j] = GraphG2->Matrix[i][j];
+				}
+			}
 		}
 	}
-	RightRaw = (int*)realloc(RightRaw, sizeof(int) * MatrixOrderG3);
-	Graph* GraphG3Sum = graph_create(MatrixOrderG3);
-	for (int i = 0; i < MatrixOrderG3; i++) {
-		GraphG3Sum->Vertexes[i] = RightRaw[i] + 1;
-	}
 	matrix_print(GraphG3Sum);
+	graph_free(GraphG3Sum);
 }
 
 int main() {
 	srand(time(NULL));
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
-	int MatrixOrder;
-	printf("Введите размерность матрицы: ");
-	scanf("%d", &MatrixOrder);
-	Graph* GraphG1 = graph_create(MatrixOrder);
-	Graph* GraphG1temp = graph_create(MatrixOrder);
-	Graph* GraphG2 = graph_create(MatrixOrder);
-	Graph* GraphG2temp = graph_create(MatrixOrder);
+	int matrixOrderG1;
+	int matrixOrderG2;
+	printf("Введите размерность матрицы 1: ");
+	scanf("%d", &matrixOrderG1);
+	printf("Введите размерность матрицы 2: ");
+	scanf("%d", &matrixOrderG2);
+	Graph* GraphG1 = graph_create(matrixOrderG1);
+	Graph* GraphG1temp = graph_create(matrixOrderG1);
+	Graph* GraphG2 = graph_create(matrixOrderG2);
 	graph_random(GraphG1);
 	graph_random(GraphG2);
 	matrix_print(GraphG1);
 	copy_graph(GraphG1, GraphG1temp);
-	vertexIndentification(GraphG1temp);
+	VertexIndentification(GraphG1temp);
 	copy_graph(GraphG1, GraphG1temp);
-	edgeContract(GraphG1temp);
+	EdgeContract(GraphG1temp);
 	copy_graph(GraphG1, GraphG1temp);
-	vertexSplit(GraphG1temp);
+	VertexSplit(GraphG1temp);
 	copy_graph(GraphG1, GraphG1temp);
-	copy_graph(GraphG2, GraphG2temp);
 	matrix_print(GraphG1);
 	matrix_print(GraphG2);
-	graphUnion(GraphG1temp, GraphG2temp);
-	copy_graph(GraphG1, GraphG1temp);
-	copy_graph(GraphG2, GraphG2temp);
-	graphCross(GraphG1temp, GraphG2temp);
+	GraphUnion(GraphG1, GraphG2);
+	GraphCross(GraphG1, GraphG2);
+	GraphSum(GraphG1, GraphG2);
 	system("PAUSE");
 }
