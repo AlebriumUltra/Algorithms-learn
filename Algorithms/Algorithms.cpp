@@ -152,6 +152,7 @@ void matrix_edgeName(Graph* GraphG, Graph* NumEdgeGraph) {
 void VertexIndentification(Graph* GraphG) {
 	int u, v;
 	int MatrixOrder = GraphG->MatrixOrder;
+	printf("\nОтождествление вершины\n");
 	printf("Введите вершину 1: ");
 	scanf("%d", &u);
 	printf("Введите вершину 2: ");
@@ -183,6 +184,7 @@ void EdgeContract(Graph* GraphG) {
 	int u, v;
 	int NumberEdge;
 	bool is_found = false;
+	printf("\nСтягивание ребра\n");
 	printf("Матрица с номерами рёбер:\n ");
 	matrix_edgeName(GraphG, NumEdgeGraph);
 	matrix_print(NumEdgeGraph);
@@ -218,6 +220,7 @@ void EdgeContract(Graph* GraphG) {
 void VertexSplit(Graph* GraphG) {
 	int MatrixOrder = GraphG->MatrixOrder;
 	int u;
+	printf("\nРасщепление вершины\n");
 	printf("Введите вершину для расщепления: ");
 	scanf("%d", &u);
 	u--;
@@ -393,6 +396,47 @@ void GraphSum(Graph* GraphG1, Graph* GraphG2) {
 	graph_free(GraphG3Sum);
 }
 
+void CartesianProduct(Graph* GraphG1, Graph* GraphG2) {
+	printf("Декартово произведение\n");
+	int matrixOrderG1 = GraphG1->MatrixOrder;
+	int matrixOrderG2 = GraphG2->MatrixOrder;
+	int vertexProduct = GraphG1->MatrixOrder * GraphG2->MatrixOrder;
+	int u = 0, v = 0;
+	Graph* GraphG3CartProd = graph_create(vertexProduct);
+	for (int i = 0; i < vertexProduct; i++) {
+		for (int j = 0; j < vertexProduct; j++) {
+			GraphG3CartProd->Matrix[i][j] = 0;
+		}
+	}
+	for (int i = 0; i < matrixOrderG1; i++) {
+		for (int j = 0; j < matrixOrderG2; j++, u++) {
+			v = 0;
+			for (int x1 = 0; x1 < matrixOrderG1; x1++) {
+				for (int x2 = 0; x2 < matrixOrderG2; x2++, v++) {
+					if ((x1 == i && GraphG2->Matrix[x2][j]) || (x2 == j && GraphG1->Matrix[x1][i])) {
+						GraphG3CartProd->Matrix[u][v] = 1;
+					}
+				}
+			}
+		}
+	}
+	for (int x1 = 0; x1 < matrixOrderG1; x1++) {
+		for (int x2 = 0; x2 < matrixOrderG2; x2++) {
+			printf("{%d%d}\t", x1 + 1, x2 + 1);
+		}
+	}
+	printf("\n");
+	for (int i = 0; i < vertexProduct; i++) {
+		for (int j = 0; j < vertexProduct; j++) {
+			printf("|%d|\t", GraphG3CartProd->Matrix[i][j]);
+		}
+		printf("\n");
+	}
+	
+	graph_free(GraphG3CartProd);
+}
+
+
 int main() {
 	srand(time(NULL));
 	SetConsoleCP(1251);
@@ -408,6 +452,7 @@ int main() {
 	Graph* GraphG2 = graph_create(matrixOrderG2);
 	graph_random(GraphG1);
 	graph_random(GraphG2);
+	printf("\nУнарные операции\n------------------------------------------");
 	matrix_print(GraphG1);
 	copy_graph(GraphG1, GraphG1temp);
 	VertexIndentification(GraphG1temp);
@@ -416,10 +461,14 @@ int main() {
 	copy_graph(GraphG1, GraphG1temp);
 	VertexSplit(GraphG1temp);
 	copy_graph(GraphG1, GraphG1temp);
+	printf("Бинарные операции\n------------------------------------------\n");
+	printf("Матрица 1");
 	matrix_print(GraphG1);
+	printf("Матрица 2");
 	matrix_print(GraphG2);
 	GraphUnion(GraphG1, GraphG2);
 	GraphCross(GraphG1, GraphG2);
 	GraphSum(GraphG1, GraphG2);
+	CartesianProduct(GraphG1, GraphG2);
 	system("PAUSE");
 }
