@@ -2,6 +2,7 @@
 #include "Algorithms.h"
 #include "Structs.h"
 
+
 int** matrix_malloc(int MatrixOrder) {
 	int** Matrix = (int**)malloc(sizeof(int) * MatrixOrder);
 	for (int i = 0; i < MatrixOrder; i++) {
@@ -54,7 +55,7 @@ void copy_graph(Graph* GraphG, Graph* GraphTemp) {
 }
 
 int randFunc() {
-	if (rand() % 101 <= 50) {
+	if (rand() % 101 <= 40) {
 		return 1;
 	}
 	else {
@@ -79,6 +80,7 @@ void graph_random(Graph* GraphG) {
 
 void matrix_print(Graph* GraphG) {
 	printf("\n");
+	printf("Матрица \n");
 	int MatrixOrder = GraphG->MatrixOrder;
 	printf("\t");
 	for (int i = 0; i < MatrixOrder; i++) {
@@ -174,7 +176,7 @@ void VertexIndentification(Graph* GraphG) {
 	
 	matrix_copydec(GraphG, IndentGraph, v);
 	matrix_print(IndentGraph);
-	free(IndentGraph);
+	graph_free(IndentGraph);
 }
 
 
@@ -213,7 +215,7 @@ void EdgeContract(Graph* GraphG) {
 	Graph* IndentGraph = graph_create(MatrixOrder - 1);
 	matrix_copydec(GraphG, IndentGraph, v);
 	matrix_print(IndentGraph);
-	free(IndentGraph);
+	graph_free(IndentGraph);
 }
 
 
@@ -251,7 +253,7 @@ void VertexSplit(Graph* GraphG) {
 	}
 	IndentGraph->Matrix[MatrixOrder][MatrixOrder] = 0;
 	matrix_print(IndentGraph);
-	free(IndentGraph);
+	graph_free(IndentGraph);
 }
 
 void GraphUnion(Graph* GraphG1, Graph* GraphG2) {
@@ -437,6 +439,266 @@ void CartesianProduct(Graph* GraphG1, Graph* GraphG2) {
 }
 
 
+GraphList* GraphList_create(int numVertexes) {
+	GraphList* graph = (GraphList*)malloc(sizeof(GraphList));
+	graph->numVertexes = numVertexes;
+	graph->Heads = (Node**)malloc(sizeof(Node*) * numVertexes);
+	graph->seqVertexes = (int*)malloc(sizeof(int) * numVertexes);
+	for (int i = 0; i < numVertexes; i++) {
+		graph->Heads[i] = NULL;
+		graph->seqVertexes[i] = i + 1;
+	}
+	return graph;
+}
+
+Node* Node_create(int vertex) {
+	Node* newNode = (Node*)malloc(sizeof(Node*));
+	newNode->vertex = vertex;
+	newNode->next = NULL;
+	return newNode;
+}
+
+
+void TransMatrixInList(Graph* graph, GraphList* list) {
+	int MatrixOrder = graph->MatrixOrder;
+	for (int i = 0; i < MatrixOrder; i++) {
+		for (int j = 0; j < MatrixOrder; j++) {
+			if (graph->Matrix[i][j] == 1) {
+				if (list->Heads[i] == NULL) {
+					list->Heads[i] = Node_create(j);
+				}
+				else {
+					Node* tmp = list->Heads[i];
+					while (tmp->next != NULL) {
+						tmp = tmp->next;
+					}
+					tmp->next = Node_create(j);
+				}
+			}
+		}
+	}
+}
+
+void list_print(GraphList* list) {
+	printf("\n");
+	printf("Список смежности");
+	printf("\n");
+	Node* current;
+	for (int i = 0; i < list->numVertexes; i++) {
+		printf("%d", list->seqVertexes[i]);
+		current = list->Heads[i];
+		while (current != NULL) {
+			printf("->%d", current->vertex + 1);
+			current = current->next;
+		}
+		printf("\n");
+	}
+}
+
+void DeleteNode(Node** head, Node* OldNode) {
+	Node* current = *head;
+	if (*head == OldNode)
+		*head = OldNode->next;
+	else {
+		while (current && current->next != OldNode) {
+			current = current->next;
+		}
+		if (current == NULL) {
+			return;
+		}
+		current->next = OldNode->next;
+	}
+	free(OldNode);
+}
+
+void AddFirst(Node** head, Node* newNode) {
+	newNode->next = *head;
+	*head = newNode;
+}
+
+void AddAfter(Node* afterNode, Node* newNode) {
+	newNode->next = afterNode->next;
+	afterNode->next = newNode;
+}
+
+void AddBefore(Node** head, Node* beforeNode, Node* newNode) {
+	Node* current = *head;
+	if (*head == beforeNode) {
+		AddFirst(head, newNode);
+		return;
+	}
+	while (current && current->next != beforeNode)
+		current = current->next;
+	if (current)
+		AddAfter(current, newNode);
+}
+
+void AddLast(Node** head, Node* newNode) {
+	Node* current = *head;
+	if (*head == NULL) {
+		AddFirst(head, newNode);
+		return;
+	}
+	while (current->next)
+		current = current->next;
+	AddAfter(current, newNode);
+}
+
+bool EdgeExist(Node* head, int v) {
+	Node* current = head;
+	while (current) {
+		if (current->vertex == v) {
+			return true;
+		}
+		current = current->next;
+	}
+	return false;
+}
+
+
+void GraphList_free(GraphList* list) {
+	Node* prev = NULL;
+	for (int i = 0; i < list->numVertexes; i++) {
+		while (list->Heads[i]->next) {
+			prev = list->Heads[i];
+			list->Heads[i] = list->Heads[i]->next;
+			free(prev);
+		}
+		free(list->Heads[i]);
+	}
+	free(list->Heads);
+	free(list->seqVertexes);
+}
+
+void ListIdentification(GraphList* lists) {
+	int numVertexes = lists->numVertexes;
+	int v, u;
+	printf("\n\nВведите вершину 1: ");
+	scanf("%d", &u);
+	printf("Введите вершину 2: ");
+	scanf("%d", &v);
+	u--;
+	v--;
+	if (u > v) {
+		int temp = v;
+		v = u;
+		u = temp;
+	}
+
+	GraphList* ListIdent = GraphList_create(numVertexes - 1);
+	
+	for (int i = v; i < ListIdent->numVertexes; i++) {
+		ListIdent->seqVertexes[i] = i + 2;
+	}
+
+	Node* currentNode;
+	Node* currentNodeIdent;
+	for (int i = 0; i < v; i++) {
+		currentNode = lists->Heads[i];
+		currentNodeIdent = ListIdent->Heads[i];
+		while (currentNode) {
+			Node* newNode = Node_create(currentNode->vertex);
+			AddLast(&ListIdent->Heads[i], newNode);
+			currentNode = currentNode->next;
+		}
+	}
+	for (int i = v; i < ListIdent->numVertexes; i++) {
+		currentNode = lists->Heads[i + 1];
+		currentNodeIdent = ListIdent->Heads[i];
+		while (currentNode) {
+			Node* newNode = Node_create(currentNode->vertex);
+			AddLast(&ListIdent->Heads[i], newNode);
+			currentNode = currentNode->next;
+		}
+	}
+
+	bool is_exist;
+	Node* currentNodeV = lists->Heads[v];
+	Node* currentNodeU = lists->Heads[u];
+	int currentV;
+	while (currentNodeV) {
+		is_exist = false;
+		currentV = currentNodeV->vertex;
+		is_exist = EdgeExist(currentNodeU, currentV);
+		if (!is_exist) {
+			Node* newNode = Node_create(currentV);
+			AddLast(&ListIdent->Heads[u], newNode);
+		}
+		currentNodeV = currentNodeV->next;
+	}
+	list_print(ListIdent);
+}
+
+void ListEdgeContract(GraphList* lists) {
+	int numVertexes = lists->numVertexes;
+	int v, u;
+	printf("\n\nВведите вершину 1: ");
+	scanf("%d", &u);
+	printf("Введите вершину 2 смежную с 1: ");
+	scanf("%d", &v);
+	u--;
+	v--;
+	if (u > v) {
+		int temp = v;
+		v = u;
+		u = temp;
+	}
+	Node* currentNodeV = lists->Heads[v];
+	Node* currentNodeU = lists->Heads[u];
+	if (!EdgeExist(currentNodeU, v)) {
+		printf("Ребра между ними не существует!\n");
+		return;
+	}
+	else {
+		GraphList* ListContract = GraphList_create(numVertexes - 1);
+		Node* currentNode;
+		Node* currentListContr;
+		for (int i = v; i < ListContract->numVertexes; i++) {
+			ListContract->seqVertexes[i] = i + 2;
+		}
+		for (int i = 0; i < v; i++) {
+			currentNode = lists->Heads[i];
+			currentListContr = ListContract->Heads[i];
+			while (currentNode) {
+				Node* newNode = Node_create(currentNode->vertex);
+				AddLast(&ListContract->Heads[i], newNode);
+				currentNode = currentNode->next;
+			}
+		}
+		for (int i = v; i < ListContract->numVertexes; i++) {
+			currentNode = lists->Heads[i + 1];
+			currentListContr = ListContract->Heads[i];
+			while (currentNode) {
+				Node* newNode = Node_create(currentNode->vertex);
+				AddLast(&ListContract->Heads[i], newNode);
+				currentNode = currentNode->next;
+			}
+		}
+		bool is_exist;
+		int currentV;
+		while (currentNodeV) {
+			is_exist = false;
+			currentV = currentNodeV->vertex;
+			is_exist = EdgeExist(currentNodeU, currentV);
+			if (!is_exist) {
+				Node* newNode = Node_create(currentV);
+				AddLast(&ListContract->Heads[u], newNode);
+			}
+			currentNodeV = currentNodeV->next;
+		}
+		currentNode = ListContract->Heads[u];
+		while (currentNode != NULL) {
+			if (currentNode->vertex == u) {
+				DeleteNode(&ListContract->Heads[u], currentNode);
+				break;
+			}
+			currentNode = currentNode->next;
+		}
+		list_print(ListContract);
+	}
+}
+
+
 int main() {
 	srand(time(NULL));
 	SetConsoleCP(1251);
@@ -454,11 +716,16 @@ int main() {
 	graph_random(GraphG2);
 	printf("\nУнарные операции\n------------------------------------------");
 	matrix_print(GraphG1);
+	GraphList* GraphListG1 = GraphList_create(matrixOrderG1);
+	TransMatrixInList(GraphG1, GraphListG1);
+	list_print(GraphListG1);
 	copy_graph(GraphG1, GraphG1temp);
 	VertexIndentification(GraphG1temp);
+	ListIdentification(GraphListG1);
 	copy_graph(GraphG1, GraphG1temp);
 	EdgeContract(GraphG1temp);
-	copy_graph(GraphG1, GraphG1temp);
+	ListEdgeContract(GraphListG1);
+	/*copy_graph(GraphG1, GraphG1temp);
 	VertexSplit(GraphG1temp);
 	copy_graph(GraphG1, GraphG1temp);
 	printf("Бинарные операции\n------------------------------------------\n");
@@ -469,6 +736,6 @@ int main() {
 	GraphUnion(GraphG1, GraphG2);
 	GraphCross(GraphG1, GraphG2);
 	GraphSum(GraphG1, GraphG2);
-	CartesianProduct(GraphG1, GraphG2);
+	CartesianProduct(GraphG1, GraphG2);*/
 	system("PAUSE");
 }
