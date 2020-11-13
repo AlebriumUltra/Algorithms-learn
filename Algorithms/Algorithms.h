@@ -3,5 +3,7 @@
 #include <conio.h>
 #include <malloc.h>
 #include <time.h>
-#include <stdlib.h>
+#include <random>
 #include <Windows.h>
+#include <queue>
+#include <stack>
