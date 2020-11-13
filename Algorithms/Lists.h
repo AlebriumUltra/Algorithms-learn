@@ -4,7 +4,9 @@ typedef struct Node {
 	Node* next;
 };
 
-typedef struct Graph {
+typedef struct GraphList {
 	int numVertex;
-	Node** headsVertex;
+	Node** heads;
+	Node** tails;
+	int* sequence_vertexes;
 };
