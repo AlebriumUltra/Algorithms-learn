@@ -18,11 +18,6 @@ typedef struct Lists {
 };
 
 
-typedef struct QueueLists {
-	int countNodes;
-	Node* head;
-};
-
 Node* NodeCreate(int vertex);
 void AddLastQ(int vertex);
 void PopNodeQ();
@@ -135,16 +130,6 @@ Lists* ListsCreate(int numVertexes) {
 	return list;
 }
 
-void AddFirstQ(QueueLists* list, Node* newNode) {
-	newNode->next = list->head;
-	list->head = newNode;
-	list->countNodes++;
-}
-
-void AddAfterQ(Node* afterNode, Node* newNode) {
-	newNode->next = afterNode->next;
-	afterNode->next = newNode;
-}
 
 void AddLastQ(int vertex) {
 	Node* newNode = (Node*)malloc(sizeof(Node));
@@ -208,14 +193,6 @@ void PopNodeQ() {
 }
 
 
-QueueLists* QListCreate() {
-	QueueLists* list = (QueueLists*)malloc(sizeof(QueueLists));
-	list->countNodes = 0;
-	list->head = NULL;
-	return list;
-}
-
-
 
 double BFSwithoutQ(Graph* graph, int vertex, int* visitedArray) {
 	clock_t start, end;
@@ -224,7 +201,6 @@ double BFSwithoutQ(Graph* graph, int vertex, int* visitedArray) {
 	visitedArray[vertex] = 1;
 	while (head != NULL) {
 		vertex = head->vertex;
-		printf("%d", vertex + 1);
 		PopNodeQ();
 		for (int i = 0; i < graph->MatrixOrder; i++) {
 			if (graph->Matrix[vertex][i] == 1 && visitedArray[i] == 0) {
@@ -245,7 +221,6 @@ double BFS(Graph* graph, int vertex, int* visitedArray) {
 	visitedArray[vertex] = 1;
 	while (!Q.empty()) {
 		vertex = Q.front();
-		printf("%d", vertex + 1);
 		Q.pop();
 		for (int i = 0; i < graph->MatrixOrder; i++) {
 			if (graph->Matrix[vertex][i] == 1 && visitedArray[i] == 0) {
@@ -309,7 +284,7 @@ int main(void) {
 	printf("\n\n");
 	printf("Время с очередью: %lf", TimeQue);
 	printf("\n\n");
-	printf("Время со списком: %lf", TimeList);
+	printf("Время со списком: %lf\n", TimeList);
 	Lists* list = ListsCreate(MatrixOrder);
 	TransMatrixInList(graph, list);
 	PrintList(list);
