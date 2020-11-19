@@ -196,9 +196,52 @@ void ListsPrint(Lists* list) {
 	}
 }
 
+void ArrayPrint(int* Array, int num_vertexes) {
+	printf("\n");
+	for (int i = 0; i < num_vertexes; i++) {
+		printf("%d ", Array[i]);
+	}
+}
 
+void BFSD(Graph* graph ,int* dist, int start_vertex) {
+	std::queue<int>Q;
+	int num_vertexes = graph->matrix_order;
+	Q.push(start_vertex);
+	dist[start_vertex] = 0;
+	int current_vertex;
+	while (!Q.empty()) {
+		current_vertex = Q.front();
+		Q.pop();
+		printf("%d", current_vertex + 1);
+		for (int i = 0; i < num_vertexes; i++) {
+			if (graph->matrix[current_vertex][i] && dist[i] == -1) {
+				Q.push(i);
+				dist[i] = dist[current_vertex] + 1;
+			}
+		}
+	}
+}
 
-
+void BFSDLists(Lists* list, int* dist, int start_vertex) {
+	std::queue<int>Q;
+	int num_vertexes = list->num_vertexes;
+	Q.push(start_vertex);
+	dist[start_vertex] = 0;
+	int current_vertex;
+	while (!Q.empty()) {
+		current_vertex = Q.front();
+		Q.pop();
+		printf("%d", current_vertex + 1);
+		Node* currentNode = list->head[current_vertex];
+		while(currentNode) {
+			if (dist[currentNode->vertex] == -1) {
+				Q.push(currentNode->vertex);
+				dist[currentNode->vertex] = dist[current_vertex] + 1;
+			}
+			currentNode = currentNode->next;
+		}
+	}
+}
 
 int main() {
 	SetConsoleCP(1251);
@@ -213,5 +256,17 @@ int main() {
 	Lists* list = ListsCreate(matrix_order);
 	TransMatrixInList(graph, list);
 	ListsPrint(list);
+	int* distance_array = ArrayCreate(matrix_order);
+	DistanceArrayRefresh(distance_array, matrix_order);
+	printf("\nРезультат обхода графа на матрице:\n");
+	BFSD(graph, distance_array, 0);
+	printf("\nМассив расстояний:");
+	ArrayPrint(distance_array, matrix_order);
+	DistanceArrayRefresh(distance_array, matrix_order);
+	printf("\n\nРезультат обхода графа на списках:\n");
+	BFSDLists(list, distance_array, 0);
+	printf("\nМассив расстояний:");
+	ArrayPrint(distance_array, matrix_order);
+	printf("\n\n");
 	system("PAUSE");
 }
