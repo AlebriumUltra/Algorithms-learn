@@ -269,18 +269,203 @@ void split_vertex(GraphList* graph) {
 	graph_delete(newGraph);
 }
 
+void GraphUnion(GraphList* G1, GraphList* G2) {
+	print_graph(G1);
+	printf("\n");
+	print_graph(G2);
+	printf("\nGraphUnion\n");
+	int num_vertexesG1 = G1->numVertex;
+	int num_vertexesG2 = G2->numVertex;
+	GraphList* G3_union;
+	if (num_vertexesG1 < num_vertexesG2) {
+		G3_union = create_graph(num_vertexesG2);
+		for (int i = 0; i < num_vertexesG2; i++) {
+			Node* current = G2->heads[i];
+			while (current) {
+				AddLast(G3_union, current->vertex, i);
+				current = current->next;
+			}
+		}
+		for (int i = 0; i < num_vertexesG1; i++) {
+			Node* current = G1->heads[i];
+			while (current) {
+				if (find_node(G3_union, current->vertex, i)) {
+					current = current->next;
+				}
+				else {
+					AddLast(G3_union, current->vertex, i);
+					current = current->next;
+				}
+			}
+		}
+	}
+	else {
+		G3_union = create_graph(num_vertexesG1);
+		for (int i = 0; i < num_vertexesG1; i++) {
+			Node* current = G1->heads[i];
+			while (current) {
+				AddLast(G3_union, current->vertex, i);
+				current = current->next;
+			}
+		}
+		for (int i = 0; i < num_vertexesG2; i++) {
+			Node* current = G2->heads[i];
+			while (current) {
+				if (find_node(G3_union, current->vertex, i)) {
+					current = current->next;
+				}
+				else {
+					AddLast(G3_union, current->vertex, i);
+					current = current->next;
+				}
+			}
+		}
+	}
+	printf("Result union\n");
+	print_graph(G3_union);
+	graph_delete(G3_union);
+}
+
+void GraphCross(GraphList* G1, GraphList* G2) {
+	printf("\nGraphCross\n");
+	int num_vertexesG1 = G1->numVertex;
+	int num_vertexesG2 = G2->numVertex;
+	GraphList* G3_cross;
+	if (num_vertexesG1 < num_vertexesG2) {
+		G3_cross = create_graph(num_vertexesG1);
+		for (int i = 0; i < num_vertexesG1; i++) {
+			Node* current = G1->heads[i];
+			while (current) {
+				if (find_node(G2, current->vertex, i)) {
+					AddLast(G3_cross, current->vertex, i);
+					current = current->next;
+				}
+				else {
+					current = current->next;
+				}
+			}
+		}
+	}
+	else {
+		G3_cross = create_graph(num_vertexesG2);
+		for (int i = 0; i < num_vertexesG2; i++) {
+			Node* current = G2->heads[i];
+			while (current) {
+				if (find_node(G1, current->vertex, i)) {
+					AddLast(G3_cross, current->vertex, i);
+					current = current->next;
+				}
+				else {
+					current = current->next;
+				}
+			}
+		}
+	}
+	printf("Result cross\n");
+	print_graph(G3_cross);
+	graph_delete(G3_cross);
+}
+
+void GraphSum(GraphList* G1, GraphList* G2) {
+	printf("\nGraphSum\n");
+	int num_vertexesG1 = G1->numVertex;
+	int num_vertexesG2 = G2->numVertex;
+	GraphList* G3_sum;
+	if (num_vertexesG1 < num_vertexesG2) {
+		G3_sum = create_graph(num_vertexesG2);
+		for (int i = 0; i < num_vertexesG1; i++) {
+			Node* current = G1->heads[i];
+			while (current) {
+				if (find_node(G2, current->vertex, i)) {
+					current = current->next;
+				}
+				else {
+					AddLast(G3_sum, current->vertex, i);
+					current = current->next;
+				}
+			}
+		}
+		for (int i = 0; i < num_vertexesG1; i++) {
+			Node* current = G2->heads[i];
+			while (current) {
+				if (find_node(G1, current->vertex, i)) {
+					current = current->next;
+				}
+				else {
+					AddLast(G3_sum, current->vertex, i);
+					current = current->next;
+				}
+			}
+		}
+		for (int i = num_vertexesG1; i < num_vertexesG2; i++) {
+			Node* current = G2->heads[i];
+			while (current) {
+				AddLast(G3_sum, current->vertex, i);
+				current = current->next;
+			}
+		}
+	}
+	else {
+		G3_sum = create_graph(num_vertexesG1);
+		for (int i = 0; i < num_vertexesG2; i++) {
+			Node* current = G2->heads[i];
+			while (current) {
+				if (find_node(G1, current->vertex, i)) {
+					current = current->next;
+				}
+				else {
+					AddLast(G3_sum, current->vertex, i);
+					current = current->next;
+				}
+			}
+		}
+		for (int i = 0; i < num_vertexesG2; i++) {
+			Node* current = G1->heads[i];
+			while (current) {
+				if (find_node(G2, current->vertex, i)) {
+					current = current->next;
+				}
+				else {
+					AddLast(G3_sum, current->vertex, i);
+					current = current->next;
+				}
+			}
+		}
+		for (int i = num_vertexesG2; i < num_vertexesG1; i++) {
+			Node* current = G1->heads[i];
+			while (current) {
+				AddLast(G3_sum, current->vertex, i);
+				current = current->next;
+			}
+		}
+	}
+	printf("Result sum\n");
+	print_graph(G3_sum);
+	graph_delete(G3_sum);
+}
+
 int main() {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 	srand(time(NULL));
-	int numVertexes;
-	printf("Enter the number of vertexes: ");
-	scanf("%d", &numVertexes);
-	GraphList* graphG1 = create_graph(numVertexes);
+	int num_vertexesG1;
+	int num_vertexesG2;
+	printf("Enter the number of vertexes for G1: ");
+	scanf("%d", &num_vertexesG1);
+	printf("Enter the number of vertexes for G2: ");
+	scanf("%d", &num_vertexesG2);
+	GraphList* graphG1 = create_graph(num_vertexesG1);
 	random_graph(graphG1);
 	print_graph(graphG1);
+	printf("\n---------------------Unary operations-------------------\n");
 	vertex_identification(graphG1);
 	edge_contract(graphG1);
 	split_vertex(graphG1);
+	printf("\n---------------------Binary operations-------------------\n");
+	GraphList* graphG2 = create_graph(num_vertexesG2);
+	random_graph(graphG2);
+	GraphUnion(graphG1, graphG2);
+	GraphCross(graphG1, graphG2);
+	GraphSum(graphG1, graphG2);
 	system("PAUSE");
 }
