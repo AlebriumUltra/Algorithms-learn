@@ -243,6 +243,47 @@ void BFSDLists(Lists* list, int* dist, int start_vertex) {
 	}
 }
 
+void DFSD(Graph* graph, int* dist, int start_vertex) {
+	std::stack<int>S;
+	int num_vertexes = graph->matrix_order;
+	S.push(start_vertex);
+	dist[start_vertex] = 0;
+	int current_vertex;
+	while (!S.empty()) {
+		current_vertex = S.top();
+		S.pop();
+		printf("%d", current_vertex + 1);
+		for (int i = num_vertexes - 1; i >= 0; i--) {
+			if (graph->matrix[current_vertex][i] && dist[i] == -1) {
+					S.push(i);
+					dist[i] = dist[current_vertex] + 1;
+			}
+		}
+	}
+}
+
+void DFSDLists(Lists* list, int* dist, int start_vertex) {
+	std::stack<int>S;
+	int num_vertexes = list->num_vertexes;
+	S.push(start_vertex);
+	dist[start_vertex] = 0;
+	int current_vertex;
+	while (!S.empty()) {
+		current_vertex = S.top();
+		S.pop();
+		dist[current_vertex] = 0;
+		printf("%d", current_vertex + 1);
+		Node* currentNode = list->head[current_vertex];
+		while(currentNode) {
+			if (dist[currentNode->vertex] == -1) {
+					S.push(currentNode->vertex);
+					dist[currentNode->vertex] = dist[current_vertex] + 1;
+			}
+			currentNode = currentNode->next;
+		}
+	}
+}
+
 int main() {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
@@ -258,13 +299,23 @@ int main() {
 	ListsPrint(list);
 	int* distance_array = ArrayCreate(matrix_order);
 	DistanceArrayRefresh(distance_array, matrix_order);
-	printf("\nРезультат обхода графа на матрице:\n");
+	printf("\nРезультат обхода графа в ширину на матрице:\n");
 	BFSD(graph, distance_array, 0);
 	printf("\nМассив расстояний:");
 	ArrayPrint(distance_array, matrix_order);
 	DistanceArrayRefresh(distance_array, matrix_order);
-	printf("\n\nРезультат обхода графа на списках:\n");
+	printf("\n\nРезультат обхода графа в ширину на списках:\n");
 	BFSDLists(list, distance_array, 0);
+	printf("\nМассив расстояний:");
+	ArrayPrint(distance_array, matrix_order);
+	DistanceArrayRefresh(distance_array, matrix_order);
+	printf("\n\nРезультат обхода графа в глубину на матрице:\n");
+	DFSD(graph, distance_array, 0);
+	printf("\nМассив расстояний:");
+	ArrayPrint(distance_array, matrix_order);
+	DistanceArrayRefresh(distance_array, matrix_order);
+	printf("\n\nРезультат обхода графа в глубину на списках:\n");
+	DFSDLists(list, distance_array, 0);
 	printf("\nМассив расстояний:");
 	ArrayPrint(distance_array, matrix_order);
 	printf("\n\n");
