@@ -91,12 +91,6 @@ void GraphRandom(Graph* GraphG) {
 	}
 }
 
-void ArrayClear(int* visitedArray, int size) {
-	for (int i = 0; i < size; i++) {
-		visitedArray[i] = 0;
-	}
-}
-
 void MatrixPrint(Graph* GraphG) {
 	printf("\n");
 	int matrix_order = GraphG->matrix_order;
@@ -253,14 +247,15 @@ void DFSD(Graph* graph, int* dist, int start_vertex) {
 		current_vertex = S.top();
 		S.pop();
 		printf("%d", current_vertex + 1);
-		for (int i = num_vertexes - 1; i >= 0; i--) {
+		for (int i = 0; i < num_vertexes; i++) {
 			if (graph->matrix[current_vertex][i] && dist[i] == -1) {
-					S.push(i);
-					dist[i] = dist[current_vertex] + 1;
+				S.push(i);
+				dist[i] = dist[current_vertex] + 1;
 			}
 		}
 	}
 }
+
 
 void DFSDLists(Lists* list, int* dist, int start_vertex) {
 	std::stack<int>S;
@@ -271,7 +266,6 @@ void DFSDLists(Lists* list, int* dist, int start_vertex) {
 	while (!S.empty()) {
 		current_vertex = S.top();
 		S.pop();
-		dist[current_vertex] = 0;
 		printf("%d", current_vertex + 1);
 		Node* currentNode = list->head[current_vertex];
 		while(currentNode) {
