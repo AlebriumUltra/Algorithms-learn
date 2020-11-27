@@ -68,7 +68,7 @@ void GraphFree(Graph* GraphG) {
 	free(GraphG);
 }
 
-int _Rand() {
+int GetAdj() {
 	if (rand() % 101 <= 30) {
 		return 1;
 	}
@@ -77,7 +77,7 @@ int _Rand() {
 	}
 }
 
-void GraphRandom(Graph* GraphG) {
+void GraphUndirectUnweight(Graph* GraphG) {
 	int matrix_order = GraphG->matrix_order;
 	for (int i = 0; i < matrix_order; i++) {
 		for (int j = i; j < matrix_order; j++) {
@@ -85,15 +85,55 @@ void GraphRandom(Graph* GraphG) {
 				GraphG->matrix[i][j] = 0;
 			}
 			else {
-				GraphG->matrix[i][j] = GraphG->matrix[j][i] = _Rand();
+				GraphG->matrix[i][j] = GraphG->matrix[j][i] = GetAdj();
 			}
 		}
 	}
 }
 
-void ArrayClear(int* visitedArray, int size) {
-	for (int i = 0; i < size; i++) {
-		visitedArray[i] = 0;
+void GraphUndirectWeight(Graph* GraphG) {
+	int matrix_order = GraphG->matrix_order;
+	for (int i = 0; i < matrix_order; i++) {
+		for (int j = i; j < matrix_order; j++) {
+			if (i == j)
+				GraphG->matrix[i][j] = 0;
+			else if (GetAdj())
+				GraphG->matrix[i][j] = GraphG->matrix[j][i] = rand() % 10;
+			else
+				GraphG->matrix[i][j] = GraphG->matrix[j][i] = 0;
+		}
+	}
+}
+
+void GraphDirectWeight(Graph* GraphG) {
+	int matrix_order = GraphG->matrix_order;
+	for (int i = 0; i < matrix_order; i++) {
+		for (int j = i; j < matrix_order; j++) {
+			if (i == j)
+				GraphG->matrix[i][j] = 0;
+			else if (GetAdj()) {
+				GraphG->matrix[i][j] = rand() % 10;
+				GraphG->matrix[j][i] = 0;
+			}
+			else
+				GraphG->matrix[i][j] = GraphG->matrix[j][i] = 0;
+		}
+	}
+}
+
+void GraphDirectUnweight(Graph* GraphG) {
+	int matrix_order = GraphG->matrix_order;
+	for (int i = 0; i < matrix_order; i++) {
+		for (int j = i; j < matrix_order; j++) {
+			if (i == j)
+				GraphG->matrix[i][j] = 0;
+			else if (GetAdj()) {
+				GraphG->matrix[i][j] = 1;
+				GraphG->matrix[j][i] = 0;
+			}
+			else
+				GraphG->matrix[i][j] = GraphG->matrix[j][i] = 0;
+		}
 	}
 }
 
@@ -113,6 +153,13 @@ void MatrixPrint(Graph* GraphG) {
 		printf("\n");
 	}
 	printf("\n");
+}
+
+void ArrayPrint(int* array, int size) {
+	printf("\n");
+	for (int i = 0; i < size; i++) {
+		printf("%d ", array[i]);
+	}
 }
 
 Node* NodeCreate(int vertex) {
@@ -196,22 +243,172 @@ void ListsPrint(Lists* list) {
 	}
 }
 
+void BFSD(Graph* graph, int* dist, int start_vertex) {
+	std::queue<int>Q;
+	int num_vertexes = graph->matrix_order;
+	dist[start_vertex] = 0;
+	Q.push(start_vertex);
+	int current_vertex;
+	while (!Q.empty()) {
+		current_vertex = Q.front();
+		Q.pop();
+		printf("%2d", current_vertex + 1);
+		for (int i = 0; i < num_vertexes; i++) {
+			if (graph->matrix[current_vertex][i] && dist[i] == -1) {
+				Q.push(i);
+				dist[i] = dist[current_vertex] + graph->matrix[current_vertex][i];
+			}
+		}
+	} 
+}
 
 
-
-
-int main() {
+int main(int argc, char* argv[]) {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 	srand(time(NULL));
-	int matrix_order;
-	printf("Enter matrix order: ");
-	scanf("%d", &matrix_order);
-	Graph* graph = GraphCreate(matrix_order);
-	GraphRandom(graph);
-	MatrixPrint(graph);
-	Lists* list = ListsCreate(matrix_order);
-	TransMatrixInList(graph, list);
-	ListsPrint(list);
-	system("PAUSE");
+
+	const char PROGRAMinfo[] = "--info";
+	const char UNDIRECTgraph[] = "-ud";
+	const char DIRECTgraph[] = "-d"; // Это лучше как-то объединить
+	const char UNWEIGHTgraph[] = "-uw";
+	const char WEIGHTgraph[] = "-w";
+	const char COUNTarg = 3;
+
+	if (argc > 1 && argc != COUNTarg) {
+		if (strcmp(argv[1], PROGRAMinfo) == 0) {
+			printf("\n");
+			printf("Программа для вычисления расстояний в графе\n");
+			printf("Доступные аргументы: \n");
+			printf("Неориентированный граф:  ");
+			puts(UNDIRECTgraph);
+			printf("Ориентированный граф: ");
+			puts(DIRECTgraph);
+			printf("Невзвешенный граф: ");
+			puts(UNWEIGHTgraph);
+			printf("Взвешенный граф: ");
+			puts(WEIGHTgraph);
+			printf("\n");
+			printf("Пример введения параметров для неориентированного взвешенного графа\n");
+			printf("*.exe -UD -W");
+			printf("\n");
+			return 0;
+		}
+	}
+
+	if (argc == COUNTarg) {
+
+		if (strcmp(argv[1], UNDIRECTgraph) == 0 && strcmp(argv[2], UNWEIGHTgraph) == 0 || strcmp(argv[2], UNDIRECTgraph) == 0 && strcmp(argv[1], UNWEIGHTgraph) == 0) {
+			printf("\n");
+			printf("Свойства графа: неориентированный, невзвешенный\n");
+			int graph_order;
+			printf("Введите порядок графа(количество вершин): ");
+			scanf("%d", &graph_order);
+			Graph* graph = GraphCreate(graph_order);
+			GraphUndirectUnweight(graph);
+			printf("Представление графа в виде матрицы смежности");
+			MatrixPrint(graph);
+			int* distance_array = ArrayCreate(graph_order);
+			int start_vertex;
+			DistanceArrayRefresh(distance_array, graph_order);
+			printf("\n");
+			printf("Введите вершину для обхода и поиска расстояний: ");
+			scanf("%d", &start_vertex);
+			start_vertex--;
+			printf("Осуществление обхода...");
+			printf("\n");
+			BFSD(graph, distance_array, start_vertex);
+			printf("\n");
+			printf("Расстояния от вершины %d до остальных\n", start_vertex + 1);
+			ArrayPrint(distance_array, graph_order);
+			printf("\n");
+			return 0;
+		}
+		if (strcmp(argv[1], DIRECTgraph) == 0 && strcmp(argv[2], UNWEIGHTgraph) == 0 || strcmp(argv[2], DIRECTgraph) == 0 && strcmp(argv[1], UNWEIGHTgraph) == 0) {
+			printf("\n");
+			printf("Свойства графа: ориентированный, невзвешенный\n");
+			int graph_order;
+			printf("Введите порядок графа(количество вершин): ");
+			scanf("%d", &graph_order);
+			Graph* graph = GraphCreate(graph_order);
+			GraphDirectUnweight(graph);
+			printf("Представление графа в виде матрицы смежности");
+			MatrixPrint(graph);
+			int* distance_array = ArrayCreate(graph_order);
+			int start_vertex;
+			DistanceArrayRefresh(distance_array, graph_order);
+			printf("\n");
+			printf("Введите вершину для обхода и поиска расстояний: ");
+			scanf("%d", &start_vertex);
+			start_vertex--;
+			printf("Осуществление обхода...");
+			printf("\n");
+			BFSD(graph, distance_array, start_vertex);
+			printf("\n");
+			printf("Расстояния от вершины %d до остальных\n", start_vertex + 1);
+			ArrayPrint(distance_array, graph_order);
+			printf("\n");
+			return 0;
+		}
+		if (strcmp(argv[1], UNDIRECTgraph) == 0 && strcmp(argv[2], WEIGHTgraph) == 0 || strcmp(argv[2], UNDIRECTgraph) == 0 && strcmp(argv[1], WEIGHTgraph) == 0)  {
+			printf("\n");
+			printf("Свойства графа: неориентированный, взвешенный\n");
+			int graph_order;
+			printf("Введите порядок графа(количество вершин): ");
+			scanf("%d", &graph_order);
+			Graph* graph = GraphCreate(graph_order);
+			GraphUndirectWeight(graph);
+			printf("Представление графа в виде матрицы смежности");
+			MatrixPrint(graph);
+			int* distance_array = ArrayCreate(graph_order);
+			int start_vertex;
+			DistanceArrayRefresh(distance_array, graph_order);
+			printf("\n");
+			printf("Введите вершину для обхода и поиска расстояний: ");
+			scanf("%d", &start_vertex);
+			start_vertex--;
+			printf("Осуществление обхода...");
+			printf("\n");
+			BFSD(graph, distance_array, start_vertex);
+			printf("\n");
+			printf("Расстояния от вершины %d до остальных\n", start_vertex + 1);
+			ArrayPrint(distance_array, graph_order);
+			printf("\n");
+			return 0;
+		}
+		if (strcmp(argv[1], DIRECTgraph) == 0 && strcmp(argv[2], WEIGHTgraph) == 0 || strcmp(argv[2], DIRECTgraph) == 0 && strcmp(argv[1], WEIGHTgraph) == 0) {
+			printf("\n");
+			printf("Свойства графа: ориентированный, взвешенный\n");
+			int graph_order;
+			printf("Введите порядок графа(количество вершин): ");
+			scanf("%d", &graph_order);
+			Graph* graph = GraphCreate(graph_order);
+			GraphUndirectWeight(graph);
+			printf("Представление графа в виде матрицы смежности");
+			MatrixPrint(graph);
+			int* distance_array = ArrayCreate(graph_order);
+			int start_vertex;
+			DistanceArrayRefresh(distance_array, graph_order);
+			printf("\n");
+			printf("Введите вершину для обхода и поиска расстояний: ");
+			scanf("%d", &start_vertex);
+			start_vertex--;
+			printf("Осуществление обхода...");
+			printf("\n");
+			BFSD(graph, distance_array, start_vertex);
+			printf("\n");
+			printf("Расстояния от вершины %d до остальных\n", start_vertex + 1);
+			ArrayPrint(distance_array, graph_order);
+			printf("\n");
+			return 0;
+		}
+		else {
+			printf("Введённые аргументы неверны!\n");
+			return 1;
+		}
+	}
+	else {
+	printf("Введено неправильное количество аргументов! Для просмотра доступных аргументов введите *.exe --info");
+	return 1;
+	}
 }
