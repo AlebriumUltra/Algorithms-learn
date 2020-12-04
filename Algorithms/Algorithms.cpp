@@ -283,6 +283,8 @@ int main() {
 	SetConsoleOutputCP(1251);
 	srand(time(NULL));
 	int matrix_order;
+	double start[2];
+	double end[2];
 	printf("Enter matrix order: ");
 	scanf("%d", &matrix_order);
 	Graph* graph = GraphCreate(matrix_order);
@@ -294,7 +296,9 @@ int main() {
 	int* distance_array = ArrayCreate(matrix_order);
 	DistanceArrayRefresh(distance_array, matrix_order);
 	printf("\nРезультат обхода графа в ширину на матрице:\n");
+	start[0] = clock();
 	BFSD(graph, distance_array, 0);
+	end[0] = clock();
 	printf("\nМассив расстояний:");
 	ArrayPrint(distance_array, matrix_order);
 	DistanceArrayRefresh(distance_array, matrix_order);
@@ -304,7 +308,9 @@ int main() {
 	ArrayPrint(distance_array, matrix_order);
 	DistanceArrayRefresh(distance_array, matrix_order);
 	printf("\n\nРезультат обхода графа в глубину на матрице:\n");
+	start[1] = clock();
 	DFSD(graph, distance_array, 0);
+	end[1] = clock();
 	printf("\nМассив расстояний:");
 	ArrayPrint(distance_array, matrix_order);
 	DistanceArrayRefresh(distance_array, matrix_order);
@@ -312,6 +318,10 @@ int main() {
 	DFSDLists(list, distance_array, 0);
 	printf("\nМассив расстояний:");
 	ArrayPrint(distance_array, matrix_order);
+	printf("\nВремя при обходе в ширину: ");
+	printf("%lf", (end[0] - start[0]) / CLOCKS_PER_SEC);
+	printf("\nВремя при обходе в глубину: ");
+	printf("%lf", (end[1] - start[1]) / CLOCKS_PER_SEC);
 	printf("\n\n");
 	system("PAUSE");
 }
