@@ -321,18 +321,18 @@ int main(int argc, char* argv[]) {
 			printf("\n");
 			printf("Программа для вычисления расстояний в графе\n");
 			printf("Доступные аргументы: \n");
-			printf("Неориентированный граф:  ");
+			printf("Неориентированный граф (по-умолчанию):  ");
 			puts(UNDIRECTgraph);
 			printf("Ориентированный граф: ");
 			puts(DIRECTgraph);
-			printf("Невзвешенный граф: ");
+			printf("Невзвешенный граф (по-умолчанию): ");
 			puts(UNWEIGHTgraph);
 			printf("Взвешенный граф: ");
 			puts(WEIGHTgraph);
 			printf("Возможно введение количества вершин, по-умолчанию количество вершин равно 5: ");
 			puts(SIZEgraph);
 			printf("Пример введения параметров для неориентированного взвешенного графа с 10 вершинами\n");
-			printf("*.exe -ud -w -size 10");
+			printf("*.exe -ud -w -size 10 или *.exe -w -size 10");
 			printf("\n");
 			return 0;
 		}
@@ -343,14 +343,22 @@ int main(int argc, char* argv[]) {
 		char current_weight[] = "-uw";
 		char current_direct[] = "-ud";
 		for (int i = 1; i < argc; i++) {
+			bool incurrect = true;
+			if (strcmp(argv[i], SIZEgraph) == 0 || strcmp(argv[i], UNDIRECTgraph) == 0 || strcmp(argv[i], DIRECTgraph) == 0 || strcmp(argv[i], UNWEIGHTgraph) == 0 || strcmp(argv[i], WEIGHTgraph) == 0 || atoi(argv[i]) != 0) {
+				incurrect = false;
+			}
+			if (incurrect) {
+				printf("Введенные аргументы неверны! Для просмотра доступных аргументов введите *.exe --info");
+				return 1;
+			}
+		}
+		for (int i = 1; i < argc; i++) {
 			if (strcmp(argv[i], SIZEgraph) == 0) {
 				if (atoi(argv[i + 1]) == 0) {
 					printf("Введенные аргументы неверны! Для просмотра доступных аргументов введите *.exe --info");
 					return 1;
 				}
-				else {
-					graph_order = atoi(argv[i + 1]);
-				}
+				graph_order = atoi(argv[i + 1]);
 			}
 			if (strcmp(argv[i], DIRECTgraph) == 0) {
 				strcpy(current_direct, "-d");
@@ -375,6 +383,10 @@ int main(int argc, char* argv[]) {
 				printf("Введите вершину для обхода и поиска расстояний: ");
 				scanf("%d", &start_vertex);
 				start_vertex--;
+				if (start_vertex < 0 || start_vertex > graph_order - 1) {
+					printf("Неверный ввод стартовой вершины!");
+					return 1;
+				}
 				printf("Осуществление обхода...");
 				printf("\n");
 				BFSD(graph, distance_array, start_vertex);
@@ -400,6 +412,10 @@ int main(int argc, char* argv[]) {
 				printf("Введите вершину для обхода и поиска расстояний: ");
 				scanf("%d", &start_vertex);
 				start_vertex--;
+				if (start_vertex < 0 || start_vertex > graph_order - 1) {
+					printf("Неверный ввод стартовой вершины!");
+					return 1;
+				}
 				printf("Осуществление обхода...");
 				printf("\n");
 				BFSD(graph, distance_array, start_vertex);
@@ -425,6 +441,10 @@ int main(int argc, char* argv[]) {
 				printf("Введите вершину для обхода и поиска расстояний: ");
 				scanf("%d", &start_vertex);
 				start_vertex--;
+				if (start_vertex < 0 || start_vertex > graph_order - 1) {
+					printf("Неверный ввод стартовой вершины!");
+					return 1;
+				}
 				printf("Осуществление обхода...");
 				printf("\n");
 				BFSDWeight(graph, distance_array, start_vertex);
@@ -441,7 +461,7 @@ int main(int argc, char* argv[]) {
 				printf("\n");
 				printf("Свойства графа: ориентированный, взвешенный. Количество вершин: %d\n", graph_order);
 				Graph* graph = GraphCreate(graph_order);
-				GraphUndirectWeight(graph);
+				GraphDirectWeight(graph);
 				printf("Представление графа в виде матрицы смежности");
 				MatrixPrint(graph);
 				int* distance_array = ArrayCreate(graph_order);
@@ -451,6 +471,10 @@ int main(int argc, char* argv[]) {
 				printf("Введите вершину для обхода и поиска расстояний: ");
 				scanf("%d", &start_vertex);
 				start_vertex--;
+				if (start_vertex < 0 || start_vertex > graph_order - 1) {
+					printf("Неверный ввод стартовой вершины!");
+					return 1;
+				}
 				printf("Осуществление обхода...");
 				printf("\n");
 				BFSDWeight(graph, distance_array, start_vertex);
